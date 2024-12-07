@@ -3,7 +3,7 @@
 return [
     'db' => [
         'host' => 'localhost',
-        'dbname' => 'news',
+        'dbname' => 'tlunews',
         'username' => 'root',
         'password' => '',
         'charset' => 'utf8mb4',
