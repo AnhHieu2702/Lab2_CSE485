@@ -1,132 +1,70 @@
 <?php
+require_once 'D:\laragon\www\Lab2_CSE485\app\config\database.php';
+
 class Users
 {
-    private $id;
-    private $username;
-    private $password;
-    private $role;
-    
+    private $db;
 
-    public function __construct($id, $password, $role, $username)
+    public function __construct()
     {
-        
-        $this->id = $id;
-        $this->password = $password;
-        $this->role = $role;
-        $this->username = $username;
-    }
-    public function getId()
-    {
-        return $this->id;
-    }
-    public function setId($id)
-    {
-        $this->id = $id;
+        $this->db = Database::getInstance()->getConnection();
     }
 
-    public function getUsername()
+    // Lấy tất cả người dùng với phân trang
+    public function getAllUsers($page, $perPage)
     {
-        return $this->username;
-    }
-
-    public function setUsername($username)
-    {
-        $this->username = $username;
-    }
-
-
-    public function getPassword()
-    {
-        return $this->password;
-    }
-
-    public function setPassword($password)
-    {
-        $this->password = $password;
-    }
-
-    public function getRole()
-    {
-        return $this->role;
-    }
-
-    public function setRole($role)
-    {
-        $this->role = $role;
-    }
-    // Lấy tất cả người dùng từ cơ sở dữ liệu
-    public static function getAllUsers()
-    {
-        $db = Database::getInstance()->getConnection();
-        $query = "SELECT * FROM users";
-        $stmt = $db->prepare($query);
+        $offset = ($page - 1) * $perPage;
+        $stmt = $this->db->prepare("SELECT id, username, password, role FROM users LIMIT :offset, :perPage");
+        $stmt->bindParam(':offset', $offset, PDO::PARAM_INT);
+        $stmt->bindParam(':perPage', $perPage, PDO::PARAM_INT);
         $stmt->execute();
-        $usersData = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-        // Tạo mảng các đối tượng Users
-        $users = [];
-        foreach ($usersData as $userData) {
-            $users[] = new self($userData['id'], $userData['username'], $userData['password'], $userData['role']);
-        }
-        return $users;
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    // Lấy người dùng theo tên đăng nhập
-    public static function getUserByUsername($username)
+    // Lấy tổng số người dùng để tính toán phân trang
+    public function getUserCount()
     {
-        $db = Database::getInstance()->getConnection();
-        $query = "SELECT * FROM users WHERE username = :username";
-        $stmt = $db->prepare($query);
-        $stmt->bindParam(':username', $username);
+        $stmt = $this->db->prepare("SELECT COUNT(*) FROM users");
         $stmt->execute();
-        $userData = $stmt->fetch(PDO::FETCH_ASSOC);
-
-        if ($userData) {
-            return new self($userData['id'], $userData['username'], $userData['password'], $userData['role']);
-        }
-        return null; // Nếu không tìm thấy người dùng, trả về null
+        return $stmt->fetchColumn();
     }
 
     // Tạo người dùng mới
-    public static function createUser($username, $password, $role)
+    public function createUser($username, $password, $role)
     {
-        $db = Database::getInstance()->getConnection();
-        $query = "INSERT INTO users (username, password, role) VALUES (:username, :password, :role)";
-        $stmt = $db->prepare($query);
+        $stmt = $this->db->prepare("INSERT INTO users (username, password, role) VALUES (:username, :password, :role)");
         $stmt->bindParam(':username', $username);
-        $stmt->bindParam(':password', password_hash($password, PASSWORD_DEFAULT)); // Mã hóa mật khẩu
+        $stmt->bindParam(':password', $password);  // Không mã hóa mật khẩu
         $stmt->bindParam(':role', $role);
-
-        if ($stmt->execute()) {
-            return new self($db->lastInsertId(), $username, $password, $role); // Trả về đối tượng User mới tạo
-        }
-        return null; // Nếu không thể tạo người dùng, trả về null
+        return $stmt->execute();
     }
 
     // Cập nhật thông tin người dùng
-    public static function updateUser($id, $username, $password, $role)
+    public function updateUser($id, $username, $password, $role)
     {
-        $db = Database::getInstance()->getConnection();
-        $query = "UPDATE users SET username = :username, password = :password, role = :role WHERE id = :id";
-        $stmt = $db->prepare($query);
+        $stmt = $this->db->prepare("UPDATE users SET username = :username, password = :password, role = :role WHERE id = :id");
         $stmt->bindParam(':id', $id);
         $stmt->bindParam(':username', $username);
-        $stmt->bindParam(':password', password_hash($password, PASSWORD_DEFAULT)); // Mã hóa mật khẩu
+        $stmt->bindParam(':password', $password);  // Không mã hóa mật khẩu
         $stmt->bindParam(':role', $role);
-
-        if ($stmt->execute()) {
-            return new self($id, $username, $password, $role); // Trả về đối tượng User đã cập nhật
-        }
-        return null; // Nếu không thể cập nhật, trả về null
+        return $stmt->execute();
     }
 
-    // Xóa người dùng theo id
-    public static function deleteUser($id)
+    // Xóa người dùng
+    public function deleteUser($id)
     {
-        $db = Database::getInstance()->getConnection();
-        $query = "DELETE FROM users WHERE id = :id";
-        $stmt = $db->prepare($query);
+        $stmt = $this->db->prepare("DELETE FROM users WHERE id = :id");
         $stmt->bindParam(':id', $id);
-        return $stmt->execute(); // Trả về kết quả của việc xóa
+        return $stmt->execute();
+    }
+
+    // Lấy thông tin người dùng theo ID
+    public function getUserById($id)
+    {
+        $stmt = $this->db->prepare("SELECT id, username, password, role FROM users WHERE id = :id");
+        $stmt->bindParam(':id', $id);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 }
+?>
