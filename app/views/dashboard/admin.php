@@ -1,11 +1,29 @@
+<?php
+require_once 'D:\laragon\www\Lab2_CSE485\app\config\database.php';
+
+$db = Database::getInstance()->getConnection();
+
+// Truy vấn để lấy dữ liệu người dùng
+$stmt = $db->prepare("SELECT id, username, password, role FROM users");
+$stmt->execute();
+$data = $stmt->fetchAll(PDO::FETCH_ASSOC);
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <style>
+        /* Ẩn bảng ban đầu */
+        #userManagement {
+            display: none;
+        }
+    </style>
 </head>
 <body>
 <div class="container mt-3">
@@ -15,7 +33,7 @@
             <div class="collapse navbar-collapse" id="mynavbar">
                 <ul class="navbar-nav me-auto">
                     <li class="nav-item">
-                        <a class="nav-link" href="javascript:void(0)">Quản lý người dùng</a>
+                        <a id="manageUsersLink" class="nav-link" href="javascript:void(0)">Quản lý người dùng</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="javascript:void(0)">Quản lý danh mục</a>
@@ -31,10 +49,40 @@
             </div>
         </div>
     </nav>
-
+<!-- Bảng quản lý người dùng -->
+<div id="userManagement" class="my-5">
+        <h1 class="mb-4">Quản lý Người Dùng</h1>
+        <a href="create.php" class="btn btn-primary mb-3">Thêm mới</a>
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Username</th>
+                    <th>Password</th>
+                    <th>Role</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php foreach ($data as $row): ?>
+                    <tr>
+                        <td><?= htmlspecialchars($row['id']) ?></td>
+                        <td><?= htmlspecialchars($row['username']) ?></td>
+                        <td><?= htmlspecialchars($row['password']) ?></td>
+                        <td><?= htmlspecialchars($row['role']) ?></td>
+                        <td>
+                            <a href="#" data-bs-toggle="modal" data-bs-target="#viewModal<?= $row['id'] ?>" class="btn btn-info btn-sm">Xem</a>
+                            <a href="#" data-bs-toggle="modal" data-bs-target="#updateModal<?= $row['id'] ?>" class="btn btn-warning btn-sm">Sửa</a>
+                            <a href="#" data-bs-toggle="modal" data-bs-target="#deleteModal<?= $row['id'] ?>" class="btn btn-danger btn-sm">Xóa</a>
+                        </td>
+                    </tr>
+                <?php endforeach; ?>
+            </tbody>
+        </table>
+    </div>
 
     <nav aria-label="Page navigation example">
-        <ul class="pagination justify-content-end">
+        <ul class="pagination justify-content-center">
             <li class="page-item">
                 <a class="page-link" href="#" aria-label="Previous">
                     <span aria-hidden="true">&laquo;</span>
@@ -52,7 +100,12 @@
     </nav>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
-
+<script>
+    // Khi nhấn vào "Quản lý người dùng", hiển thị bảng quản lý
+    document.getElementById('manageUsersLink').addEventListener('click', function () {
+        document.getElementById('userManagement').style.display = 'block';
+    });
+</script>
 </body>
 </html>
 

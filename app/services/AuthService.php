@@ -43,3 +43,5 @@ class AuthService
         return $stmt->execute(); // Trả về true nếu thành công, false nếu thất bại
     }
 }
+
+
