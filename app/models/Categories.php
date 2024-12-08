@@ -29,7 +29,4 @@ class Categories
     {
         $this->name = $name;
     }
-
-
-
 }

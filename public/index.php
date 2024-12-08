@@ -1,28 +1,42 @@
 <?php
-
 if (!defined('APP_ROOT')) {
-    define('APP_ROOT', str_replace('\\', '/', dirname(__DIR__)));  // Đảm bảo APP_ROOT chỉ được định nghĩa một lần
+    define('APP_ROOT', str_replace('\\', '/', dirname(__DIR__)));
 }
 
-require_once APP_ROOT . '/app/config/config.php';  // Bao gồm cấu hình cơ sở dữ liệu, v.v.
-require_once APP_ROOT . '/app/controllers/AuthController.php';  // Bao gồm controller xử lý auth
+require_once APP_ROOT . '/app/config/config.php';
+require_once APP_ROOT . '/app/controllers/AuthController.php';
+require_once APP_ROOT . '/app/controllers/NewController.php';
+require_once APP_ROOT . '/app/controllers/CategoryController.php';
+require_once APP_ROOT . '/app/controllers/UserController.php';
 
-$controller = new AuthController();
+$controllerAuth = new AuthController();
+$controllerNew= new NewController();
+$controllerCate= new CategoryController();
+$controllerUser= new UserController();
 
-$action = isset($_GET['action']) ? $_GET['action'] : 'change'; // Action mặc định là login nếu không có
+$action = isset($_GET['action']) ? $_GET['action'] : 'change';
 
 switch ($action) {
     case 'login':
-        $controller->login();
+        $controllerAuth->login();
         break;
     case 'change':
-        $controller->changePassword();
+        $controllerAuth->changePassword();
         break;
     case 'logout':
-        $controller->logout();
+        $controllerAuth->logout();
+        break;
+    case 'admin_user':
+        $controllerUser->index();
+        break;
+    case 'admin_new':
+        $controllerCate->index();
+        break;
+    case 'user':
+        $controllerNew->index();
         break;
     default:
-        $controller->login();  // Nếu không có action hợp lệ, chuyển đến trang login mặc định
+        $controllerAuth->login();  // Nếu không có action hợp lệ, chuyển đến trang login mặc định
         break;
 }
 

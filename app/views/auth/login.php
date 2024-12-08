@@ -7,28 +7,23 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous"></head>
 <body>
-
-<form method="POST" action="<?= APP_ROOT ?>/tlunews/public/index.php?action=login">
+<form method="POST" action="http://localhost/tlunews/public/index.php?action=login">
     <section class="vh-100 gradient-custom">
         <div class="container py-5 h-100">
             <div class="row d-flex justify-content-center align-items-center h-100">
                 <div class="col-12 col-md-8 col-lg-6 col-xl-5">
                     <div class="card bg-dark text-white" style="border-radius: 1rem;">
                         <div class="card-body p-5 text-center">
-
                             <div class="mb-md-5 mt-md-4 pb-1">
 
                                 <h2 class="fw-bold mb-2 text-uppercase">Đăng nhập</h2>
                                 <p class="text-white-50 mb-5">Hãy nhập tài khoản và mật khẩu!</p>
 
-                                <!-- Email input -->
                                 <div data-mdb-input-init class="form-outline form-white mb-4">
-                                    <input type="email" id="typeEmailX" name="username" class="form-control form-control-lg" required placeholder="Tên đăng nhập"/>
+                                    <input type="text" id=username name="username" class="form-control form-control-lg" required placeholder="Tên đăng nhập"/>
                                 </div>
-
-                                <!-- Password input -->
                                 <div data-mdb-input-init class="form-outline form-white mb-4">
-                                    <input type="password" id="typePasswordX" name="password" class="form-control form-control-lg" required placeholder="Mật khẩu"/>
+                                    <input type="password" id="password" name="password" class="form-control form-control-lg" required placeholder="Mật khẩu"/>
                                 </div>
 
                                 <!-- Submit button -->

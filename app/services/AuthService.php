@@ -11,35 +11,54 @@ class AuthService
         $this->db = Database::getInstance()->getConnection();
     }
 
-    // Xác thực đăng nhập
     public function login($username, $password)
     {
-        $stmt = $this->db->prepare("SELECT * FROM users WHERE username = :username");
-        $stmt->bindParam(':username', $username, PDO::PARAM_STR);
-        $stmt->execute();
+        try {
+            $stmt = $this->db->prepare("SELECT * FROM users WHERE username = :username AND password = :password LIMIT 1");
+            $stmt->bindParam(':username', $username, PDO::PARAM_STR);
+            $stmt->bindParam(':password', $password, PDO::PARAM_STR);
+            $stmt->execute();
 
-        $user = $stmt->fetch(PDO::FETCH_ASSOC);
+            $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        if ($user && password_verify($password, $user['password'])) {
-            return [
-                'id' => $user['id'],
-                'username' => $user['username'],
-                'role' => $user['role']
-            ];
+            if ($user) {
+                return [
+                    'id' => $user['id'],
+                    'username' => $user['username'],
+                    'role' => $user['role']
+                ];
+            }
+        } catch (PDOException $e) {
+            error_log("Login error: " . $e->getMessage());
         }
 
-        return null; // Đăng nhập thất bại
+        return null;
     }
 
     // Đổi mật khẩu
-    public function changePassword($userId, $newPassword)
+    public function changePassword($userId, $currentPassword, $newPassword)
     {
-        $hashedPassword = password_hash($newPassword, PASSWORD_DEFAULT);
+        try {
+            $stmt = $this->db->prepare("SELECT * FROM users WHERE id = :id AND password = :currentPassword");
+            $stmt->bindParam(':id', $userId, PDO::PARAM_INT);
+            $stmt->bindParam(':currentPassword', $currentPassword, PDO::PARAM_STR);
+            $stmt->execute();
 
-        $stmt = $this->db->prepare("UPDATE users SET password = :password WHERE id = :id");
-        $stmt->bindParam(':password', $hashedPassword, PDO::PARAM_STR);
-        $stmt->bindParam(':id', $userId, PDO::PARAM_INT);
+            $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        return $stmt->execute(); // Trả về true nếu thành công, false nếu thất bại
+            if (!$user) {
+                return false; // Mật khẩu cũ không khớp
+            }
+
+            // Cập nhật mật khẩu mới
+            $stmt = $this->db->prepare("UPDATE users SET password = :newPassword WHERE id = :id");
+            $stmt->bindParam(':newPassword', $newPassword, PDO::PARAM_STR);
+            $stmt->bindParam(':id', $userId, PDO::PARAM_INT);
+
+            return $stmt->execute(); // Trả về true nếu thành công
+        } catch (PDOException $e) {
+            error_log("Password change error: " . $e->getMessage());
+            return false;
+        }
     }
 }
